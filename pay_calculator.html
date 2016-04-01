@@ -109,7 +109,7 @@
 	});
 
 	$('#calcular').on('click', function(){
-		var miembro = [], matriz = [], parcial = 0, members = $("[id^='li_'").length, total = 0, pp = 0, i = 0;
+		var miembro = [], matriz = [], parcial = 0, members = $("[id^='li_'").length, total = 0, pp = 0, i = 0, deuda = 0;
 
 		$('#resultado').html('');
 
@@ -123,17 +123,21 @@
 
 		for(x in miembro)
 		{
-			if(miembro[x].monto < pp)
+			if(miembro[x].monto !== pp)
 			{
-				miembro[x].monto = miembro[x].monto-pp;
-				matriz[x] = [];
-				for(y in miembro)
+				if(miembro[x].monto < pp)
 				{
-					if((miembro[y] != miembro[x]) && (miembro[y].monto > pp) && (miembro[x].monto < 0))
+					miembro[x].monto = miembro[x].monto-pp;
+					matriz[x] = [];
+					for(y in miembro)
 					{
-						matriz[x][y] = (miembro[y].monto-pp)-(miembro[x].monto*-1)>0 ? miembro[x].monto*-1:miembro[y].monto-pp;
-						miembro[x].monto = miembro[x].monto + matriz[x][y];
-						miembro[y].monto = miembro[y].monto - matriz[x][y];
+						if((miembro[y] != miembro[x]) && (miembro[y].monto > pp) && (miembro[x].monto < 0))
+						{
+//							console.log(miembro[x].nombre+":"+miembro[x].monto+" a "+miembro[y].nombre+":"+miembro[y].monto);
+							matriz[x][y] = (miembro[y].monto-pp)-(miembro[x].monto*-1)>0 ? miembro[x].monto*-1:miembro[y].monto-pp;
+							miembro[x].monto = miembro[x].monto + matriz[x][y];
+							miembro[y].monto = miembro[y].monto - matriz[x][y];
+						}
 					}
 				}
 			}
