@@ -109,24 +109,32 @@
 	});
 
 	$('#calcular').on('click', function(){
-		var miembro = [], matriz = [], parcial = 0, members = $("[id^='li_'").length;
+		var miembro = [], matriz = [], parcial = 0, members = $("[id^='li_'").length, total = 0, pp = 0, i = 0;
 
 		$('#resultado').html('');
 
-		for(i = 0; i < members; i++)
+		for(i; i < members; i++)
+		{
 			miembro[i] = {'nombre' : $('#miembro_' + i).val(), 'monto' : parseInt($('#monto_' + i).val())};
+			total += +parseInt($('#monto_' + i).val());
+		}
+
+		pp = total/i;
 
 		for(x in miembro)
 		{
-			matriz[x] = [];
-			for(y in miembro)
+			if(miembro[x].monto < pp)
 			{
-				if(miembro[y] != miembro[x])
+				miembro[x].monto = miembro[x].monto-pp;
+				matriz[x] = [];
+				for(y in miembro)
 				{
-					parcial = (miembro[y].monto/members)-(miembro[x].monto/members);
-					if(parcial > 0)
-						matriz[x][y] = parcial;
-					//matriz[x][y] = Math.round(parcial);
+					if((miembro[y] != miembro[x]) && (miembro[y].monto > pp) && (miembro[x].monto < 0))
+					{
+						matriz[x][y] = (miembro[y].monto-pp)-(miembro[x].monto*-1)>0 ? miembro[x].monto*-1:miembro[y].monto-pp;
+						miembro[x].monto = miembro[x].monto + matriz[x][y];
+						miembro[y].monto = miembro[y].monto - matriz[x][y];
+					}
 				}
 			}
 		}
