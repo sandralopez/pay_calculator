@@ -1,0 +1,156 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<style>
+	div.container{margin-top: 15px;}
+	</style>
+</head>
+<body>
+<datalist id="compipas">
+	<option value="Sandra">
+	<option value="Leslie">
+	<option value="Salva">
+	<option value="Claudio">
+	<option value="Dani">
+	<option value="Víctor">
+	<option value="CPoint">
+	<option value="Guaripolo">
+	<option value="Manny">
+	<option value="Exequiel">
+	<option value="Maca">
+	<option value="Cesar">
+</datalist>
+<!-- Contenedor principal -->
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">Pay calculator</div>
+		<div class="panel-body">
+			<!-- Botón de ayuda -->
+			<div id="help">
+				<button id="btnAyuda" type="button" class="btn btn-default" title="Instrucciones">
+					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>Ayuda
+				</button>
+			</div>
+			<!-- Panel con el texto de la ayuda -->
+			<div id="ayuda" class="col-md-6 col-md-offset-3" style="display:none;">
+				<ul class="list-group">
+					<li class="list-group-item disabled">Instrucciones de uso:</li>
+					<li class="list-group-item">1.- En el campo <b>'Nombre'</b> introduce el nombre del compipa.</li>
+					<li class="list-group-item">2.- En el campo <b>'Monto pagado'</b> introduce la cantidad total que pagó.</li>
+					<li class="list-group-item">3.- Si necesitas añadir más compipas, pulsa el botón <b>'Añadir compipa'</b>.</li>
+					<li class="list-group-item">4.- Cuando hayas terminado, pulsa el botón <b>'Calcular'</b>.</li>
+					<li class="list-group-item">5.- Podrás ver los resultados en la parte inferior.</li>
+				</ul>
+			</div>
+			<!-- Etiquetas de Nombre y Monto -->
+			<div class="col-md-6 col-md-offset-3">
+				<div class="form-group">
+					<label class="control-label col-md-6 col-md-offset-2" for='miembro_0'>Nombre</label>
+					<label class="control-label col-md-4" for='monto_0'>Monto pagado</label>
+				</div>
+			</div>
+			<!-- Campos de texto -->
+			<div class="col-md-6 col-md-offset-3">
+				<div id="fields">
+					<div class="form-group" id="li_0">
+						<div class="input-group">
+							<input class="form-control" list="compipas" id="miembro_0" placeholder="Nombre" /> 
+							<span class="input-group-addon">: $</span>
+							<input class="form-control" type="number" id="monto_0" min="0" max="1000000" value="0"  />
+						</div>
+					</div>
+					<div class="form-group" id="li_1">
+						<div class="input-group">
+							<input class="form-control" list="compipas" id="miembro_1" placeholder="Nombre"/> 
+							<span class="input-group-addon">: $</span>
+							<input class="form-control" type="number" id="monto_1" min="0" max="1000000" value="0" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Botones 'Añadir compipa' y 'Calcular' -->
+			<div class="col-md-6 col-md-offset-3">
+				<div class="form-group">
+					<div id='last'>
+						<input class="btn btn-default" type="button" id="add" value="Añadir Compipa" />
+					</div>
+				</div>
+				<div class="form-group">
+					<input class="btn btn-primary" type="button" id="calcular" value="Calcular" />
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Panel de resultados -->
+<div class="container" id="panel-resultados" style="display:none;">
+	<div class="panel panel-primary">
+		<div class="panel-heading">Resultados</div>
+		<div class="panel-body">
+			<div class="col-md-6 col-md-offset-3" id="resultado">
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$('#btnAyuda').on('click', function(){
+		$('#ayuda').toggle();
+	});
+
+	$('#add').on('click', function(){
+		var members = $("[id^='li_'").length;
+		$('#li_0').clone().prop('id','li_'+members).appendTo("#fields");
+		$("#li_"+members+" #miembro_0").prop('id','miembro_'+members).val('');
+		$("#li_"+members+" #monto_0").prop('id','monto_'+members).val(0);
+	});
+
+	$('#calcular').on('click', function(){
+		var miembro = [], matriz = [], parcial = 0, members = $("[id^='li_'").length;
+
+		$('#resultado').html('');
+
+		for(i = 0; i < members; i++)
+			miembro[i] = {'nombre' : $('#miembro_' + i).val(), 'monto' : parseInt($('#monto_' + i).val())};
+
+		for(x in miembro)
+		{
+			matriz[x] = [];
+			for(y in miembro)
+			{
+				if(miembro[y] != miembro[x])
+				{
+					parcial = (miembro[y].monto/members)-(miembro[x].monto/members);
+					if(parcial > 0)
+						matriz[x][y] = parcial;
+					//matriz[x][y] = Math.round(parcial);
+				}
+			}
+		}
+
+		for(x in matriz)
+		{
+			if(Object.keys(matriz[x]).length > 0)
+			{
+				$('#resultado').append('<div class="list-group"><a name="detail" id="'+x+'" class="list-group-item active">'+miembro[x].nombre+' le debe a:</a>');
+
+				for(y in matriz[x])
+					$('#'+x).after('<a name="detail_'+x+'" class="list-group-item">'+miembro[y].nombre+': $'+matriz[x][y]+'</a>');
+
+				$('#resultado').append('</div>');
+			}
+		}
+
+		$('#panel-resultados').show();
+	});
+
+	$('#resultado').on('click', 'a[name="detail"]', function(){
+		var id = $(this).attr('id');
+		$('a[name=detail_'+id+']').toggle();
+	});
+</script>
+</body>
+</html>
