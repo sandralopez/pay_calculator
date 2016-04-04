@@ -70,6 +70,24 @@
 					</div>
 				</div>
 			</div>
+			<div class="col-md-6 col-md-offset-3">
+				<div id="totales">
+					<div class="form-group">
+						<div class="input-group">
+							<input class="form-control" type="text" value="Total" readonly="readonly" /> 
+							<span class="input-group-addon">: $</span>
+							<input class="form-control" type="number" id="total" value="0" readonly="readonly" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="input-group">
+							<input class="form-control" type="text" value="Promedio" readonly="readonly" /> 
+							<span class="input-group-addon">: $</span>
+							<input class="form-control" type="number" id="promedio" value="0" readonly="readonly" />
+						</div>
+					</div>
+				</div>
+			</div>
 			<!-- Botones 'Añadir compipa' y 'Calcular' -->
 			<div class="col-md-6 col-md-offset-3">
 				<div class="form-group">
@@ -108,33 +126,40 @@
 		$("#li_"+members+" #monto_0").prop('id','monto_'+members).val(0);
 	});
 
+	$('#fields').on('change', $("[id^='monto_'"), function()
+	{
+		var total = 0;
+		$("[id^='monto_'").each(function()
+		{
+			total += +parseInt($(this).val());
+		});
+		$('#total').val(total);
+		$('#promedio').val(total/$("[id^='li_'").length);
+		$('#panel-resultados').hide();
+	});
+
 	$('#calcular').on('click', function(){
-		var miembro = [], matriz = [], parcial = 0, members = $("[id^='li_'").length, total = 0, pp = 0, i = 0, deuda = 0;
+		var miembro = [], matriz = [], members = $("[id^='li_'").length;
 
 		$('#resultado').html('');
 
-		for(i; i < members; i++)
-		{
+		for(i = 0; i < members; i++)
 			miembro[i] = {'nombre' : $('#miembro_' + i).val(), 'monto' : parseInt($('#monto_' + i).val())};
-			total += +parseInt($('#monto_' + i).val());
-		}
-
-		pp = total/i;
 
 		for(x in miembro)
 		{
-			if(miembro[x].monto !== pp)
+			if(miembro[x].monto !== $('#promedio').val())
 			{
-				if(miembro[x].monto < pp)
+				if(miembro[x].monto < $('#promedio').val())
 				{
-					miembro[x].monto = miembro[x].monto-pp;
+					miembro[x].monto = miembro[x].monto-$('#promedio').val();
 					matriz[x] = [];
 					for(y in miembro)
 					{
-						if((miembro[y] != miembro[x]) && (miembro[y].monto > pp) && (miembro[x].monto < 0))
+						if((miembro[y] != miembro[x]) && (miembro[y].monto > $('#promedio').val()) && (miembro[x].monto < 0))
 						{
 //							console.log(miembro[x].nombre+":"+miembro[x].monto+" a "+miembro[y].nombre+":"+miembro[y].monto);
-							matriz[x][y] = (miembro[y].monto-pp)-(miembro[x].monto*-1)>0 ? miembro[x].monto*-1:miembro[y].monto-pp;
+							matriz[x][y] = (miembro[y].monto-$('#promedio').val())-(miembro[x].monto*-1)>0 ? miembro[x].monto*-1:miembro[y].monto-$('#promedio').val();
 							miembro[x].monto = miembro[x].monto + matriz[x][y];
 							miembro[y].monto = miembro[y].monto - matriz[x][y];
 						}
@@ -150,7 +175,7 @@
 				$('#resultado').append('<div class="list-group"><a name="detail" id="'+x+'" class="list-group-item active">'+miembro[x].nombre+' le debe a:</a>');
 
 				for(y in matriz[x])
-					$('#'+x).after('<a name="detail_'+x+'" class="list-group-item">'+miembro[y].nombre+': $'+matriz[x][y]+'</a>');
+					$('#'+x).after('<a name="detail_'+x+'" class="list-group-item">'+miembro[y].nombre+': $'+Math.round(matriz[x][y])+'</a>');
 
 				$('#resultado').append('</div>');
 			}
