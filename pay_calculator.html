@@ -46,22 +46,22 @@
 			</div>
 			<!-- Etiquetas de Nombre y Monto -->
 			<div class="col-md-6 col-md-offset-3">
-				<div class="form-group">
-					<label class="control-label col-md-6 col-md-offset-2" for='miembro_0'>Nombre</label>
-					<label class="control-label col-md-4" for='monto_0'>Monto pagado</label>
+				<div class="form-inline">
+					<label class="control-label" for='miembro_0'>Nombre</label>
+					<label class="control-label col-md-offset-4" for='monto_0'>Monto pagado</label>
 				</div>
 			</div>
 			<!-- Campos de texto -->
 			<div class="col-md-6 col-md-offset-3">
 				<div id="fields">
-					<div class="form-group" id="li_0">
+					<div class="form-group form-inline" id="li_0">
 						<div class="input-group">
 							<input class="form-control" list="compipas" id="miembro_0" placeholder="Nombre" /> 
 							<span class="input-group-addon">: $</span>
 							<input class="form-control" type="number" id="monto_0" min="0" max="1000000" value="0"  />
 						</div>
 					</div>
-					<div class="form-group" id="li_1">
+					<div class="form-group form-inline" id="li_1">
 						<div class="input-group">
 							<input class="form-control" list="compipas" id="miembro_1" placeholder="Nombre"/> 
 							<span class="input-group-addon">: $</span>
@@ -72,14 +72,14 @@
 			</div>
 			<div class="col-md-6 col-md-offset-3">
 				<div id="totales">
-					<div class="form-group">
+					<div class="form-group form-inline">
 						<div class="input-group">
 							<input class="form-control" type="text" value="Total" readonly="readonly" /> 
 							<span class="input-group-addon">: $</span>
 							<input class="form-control" type="number" id="total" value="0" readonly="readonly" />
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group form-inline">
 						<div class="input-group">
 							<input class="form-control" type="text" value="Promedio" readonly="readonly" /> 
 							<span class="input-group-addon">: $</span>
@@ -115,30 +115,62 @@
 </div>
 
 <script>
+
+	// Variable global members, va contando el número de elementos creados, aunque se eliminen
+	var members = 1;
+	
+	// Botón de ayuda
 	$('#btnAyuda').on('click', function(){
 		$('#ayuda').toggle();
 	});
 
+	// Añadir un nuevo elemento
 	$('#add').on('click', function(){
-		var members = $("[id^='li_'").length;
-		$('#li_0').clone().prop('id','li_'+members).appendTo("#fields");
-		$("#li_"+members+" #miembro_0").prop('id','miembro_'+members).val('');
-		$("#li_"+members+" #monto_0").prop('id','monto_'+members).val(0);
+		// Aumentar el número de members
+		members = members+1;
+		
+		$('#li_0').clone().prop('id','li_'+members).appendTo('#fields');
+		$('#li_'+members+' #miembro_0').prop('id','miembro_'+members).val('');
+		$('#li_'+members+' #monto_0').prop('id','monto_'+members).val(0);
+
+		// Añadir el botón eliminar y hacerle bind del evento
+		$('#li_'+members).append('<input type="button" class="btn btn-default eliminar" id="eliminar_'+members+'" value="Eliminar">');
+		$('#eliminar_'+members).on('click', function() {
+			eliminar($(this).prop('id'));
+		});
 	});
 
-	$('#fields').on('change', $("[id^='monto_'"), function()
-	{
+	// Cuando hay un cambio en fields, se recalcula el total y el promedio
+	$('#fields').on('change', $("[id^='monto_'"), function() {
+		obtenerPromedio();
+	});
+
+	// Al hacer click en el botón 'Calcular'
+	$('#calcular').on('click', function(){
+		calcular();
+	});
+	
+	// Función obtener promedio
+	function obtenerPromedio() {
 		var total = 0;
-		$("[id^='monto_'").each(function()
+		$('[id^="monto_"').each(function()
 		{
 			total += +parseInt($(this).val());
 		});
 		$('#total').val(total);
 		$('#promedio').val(total/$("[id^='li_'").length);
 		$('#panel-resultados').hide();
-	});
-
-	$('#calcular').on('click', function(){
+	};
+	
+	// Función eliminar
+	function eliminar(id) {
+		$('#'+id).closest('div').remove();
+		obtenerPromedio();
+		calcular();
+	};
+	
+	// Función calcular
+	function calcular() {
 		var miembro = [], matriz = [], members = $("[id^='li_'").length;
 
 		$('#resultado').html('');
@@ -158,7 +190,6 @@
 					{
 						if((miembro[y] != miembro[x]) && (miembro[y].monto > $('#promedio').val()) && (miembro[x].monto < 0))
 						{
-//							console.log(miembro[x].nombre+":"+miembro[x].monto+" a "+miembro[y].nombre+":"+miembro[y].monto);
 							matriz[x][y] = (miembro[y].monto-$('#promedio').val())-(miembro[x].monto*-1)>0 ? miembro[x].monto*-1:miembro[y].monto-$('#promedio').val();
 							miembro[x].monto = miembro[x].monto + matriz[x][y];
 							miembro[y].monto = miembro[y].monto - matriz[x][y];
@@ -180,14 +211,15 @@
 				$('#resultado').append('</div>');
 			}
 		}
-
 		$('#panel-resultados').show();
-	});
+	};
 
+	// Plegar o desplegar los resultados de un compipa
 	$('#resultado').on('click', 'a[name="detail"]', function(){
 		var id = $(this).attr('id');
 		$('a[name=detail_'+id+']').toggle();
 	});
+	
 </script>
 </body>
 </html>
