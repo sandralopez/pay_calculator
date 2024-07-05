@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<style>
+	div.container{margin-top: 15px;}
+	</style>
+</head>
+<body>
+<!-- Contenedor principal -->
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">Pay calculator</div>
+		<div class="panel-body">
+			<!-- Botón de ayuda -->
+			<div id="help">
+				<button id="btnAyuda" type="button" class="btn btn-default" title="Instrucciones">
+					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>Ayuda
+				</button>
+			</div>
+			<!-- Panel con el texto de la ayuda -->
+			<div id="instructions" class="col-md-6 col-md-offset-3" style="display:none;">
+				<ul class="list-group">
+					<li class="list-group-item disabled">Instrucciones de uso:</li>
+					<li class="list-group-item">1.- En el campo <b>'Nombre'</b> introduce el nombre del compipa.</li>
+					<li class="list-group-item">2.- En el campo <b>'Monto pagado'</b> introduce la cantidad total que pagó.</li>
+					<li class="list-group-item">3.- Si necesitas añadir más compipas, pulsa el botón <b>'Añadir compipa'</b>.</li>
+					<li class="list-group-item">4.- Cuando hayas terminado, pulsa el botón <b>'Calcular'</b>.</li>
+					<li class="list-group-item">5.- Podrás ver los resultados en la parte inferior.</li>
+				</ul>
+			</div>
+			<!-- Etiquetas de Nombre y Monto -->
+			<div class="col-md-5 col-md-offset-3">
+				<div class="col-md-6 col-sm-5 col-xs-7">
+					<label class="control-label" for='miembro_0'>Nombre</label>
+				</div>
+				<div class="col-md-6">
+					<label class="control-label" for='monto_0'>Monto pagado</label>
+				</div>
+			</div>
+			<!-- Campos de texto -->
+			<div class="col-md-6 col-md-offset-3">
+				<div id="fields">
+					<div class="form-group form-inline" id="li_0">
+						<div class="input-group">
+							<input class="form-control" list="compipas" id="miembro_0" placeholder="Nombre" /> 
+							<span class="input-group-addon"> $</span>
+							<input class="form-control" type="number" id="monto_0" min="0" max="1000000" value="0"  />
+						</div>
+					</div>
+					<div class="form-group form-inline" id="li_1">
+						<div class="input-group">
+							<input class="form-control" list="compipas" id="miembro_1" placeholder="Nombre"/> 
+							<span class="input-group-addon"> $</span>
+							<input class="form-control" type="number" id="monto_1" min="0" max="1000000" value="0" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-md-offset-3">
+				<div id="totales">
+					<div class="form-group form-inline">
+						<div class="input-group">
+							<input class="form-control" type="text" value="Total" readonly="readonly" /> 
+							<span class="input-group-addon"> $</span>
+							<input class="form-control" type="number" id="total" value="0" readonly="readonly" />
+						</div>
+					</div>
+					<div class="form-group form-inline">
+						<div class="input-group">
+							<input class="form-control" type="text" value="Promedio" readonly="readonly" /> 
+							<span class="input-group-addon"> $</span>
+							<input class="form-control" type="number" id="promedio" value="0" readonly="readonly" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Botones 'Añadir compipa' y 'Calcular' -->
+			<div class="col-md-6 col-md-offset-3">
+				<div class="form-group">
+					<div id='last'>
+						<input class="btn btn-default" type="button" id="add" value="Añadir Compipa" />
+					</div>
+				</div>
+				<div class="form-group">
+					<input class="btn btn-primary" type="button" id="calcular" value="Calcular" />
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Panel de resultados -->
+<div class="container" id="panel-resultados" style="display:none;">
+	<div class="panel panel-primary">
+		<div class="panel-heading">Resultados</div>
+		<div class="panel-body">
+			<div class="col-md-6 col-md-offset-3" id="resultado">
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+    // Variable global members, va contando el número de elementos creados, aunque se eliminen
+    let members = 1;
+
+    // Botón de ayuda
+    document.getElementById('btnAyuda').addEventListener('click', () => {
+        const instructions = document.getElementById('instructions');
+        if (instructions.style.display === 'none' || instructions.style.display === '') {
+            instructions.style.display = 'block';
+        } else {
+            instructions.style.display = 'none';
+        }
+    });
+
+    // Añadir un nuevo elemento
+    document.getElementById('add').addEventListener('click', () => {
+        members++;
+
+        const newLi = document.getElementById('li_0').cloneNode(true);
+        newLi.id = `li_${members}`;
+        document.getElementById('fields').appendChild(newLi);
+
+        const newMiembro = newLi.querySelector('#miembro_0');
+        newMiembro.id = `miembro_${members}`;
+        newMiembro.value = '';
+
+        const newMonto = newLi.querySelector('#monto_0');
+        newMonto.id = `monto_${members}`;
+        newMonto.value = 0;
+
+        const eliminarBtn = document.createElement('input');
+        eliminarBtn.type = 'button';
+        eliminarBtn.className = 'btn btn-default eliminar';
+        eliminarBtn.id = `eliminar_${members}`;
+        eliminarBtn.value = 'Eliminar';
+        newLi.appendChild(eliminarBtn);
+
+        eliminarBtn.addEventListener('click', () => {
+            eliminar(eliminarBtn.id);
+        });
+    });
+
+    // Cuando hay un cambio en fields, se recalcula el total y el promedio
+    document.getElementById('fields').addEventListener('input', (event) => {
+        if (event.target.matches('[id^="monto_"]')) {
+            obtenerPromedio();
+        }
+    });
+
+    // Al hacer click en el botón 'Calcular'
+    document.getElementById('calcular').addEventListener('click', calcular);
+
+    // Función obtener promedio
+    function obtenerPromedio() {
+        let total = 0;
+        document.querySelectorAll('[id^="monto_"]').forEach(element => {
+            total += parseInt(element.value) || 0;
+        });
+        document.getElementById('total').value = total;
+        document.getElementById('promedio').value = total / document.querySelectorAll('[id^="li_"]').length;
+        document.getElementById('panel-resultados').style.display = 'none';
+    }
+
+    // Función eliminar
+    function eliminar(id) {
+        document.getElementById(id).closest('div').remove();
+        obtenerPromedio();
+        calcular();
+    }
+
+    // Función calcular
+    function calcular() {
+        const miembro = [];
+        const matriz = [];
+        const membersCount = document.querySelectorAll('[id^="li_"]').length;
+
+        document.getElementById('resultado').innerHTML = '';
+
+        for (let i = 0; i < membersCount; i++) {
+            miembro[i] = {
+                nombre: document.getElementById(`miembro_${i}`).value,
+                monto: parseInt(document.getElementById(`monto_${i}`).value) || 0
+            };
+        }
+
+        const promedio = parseInt(document.getElementById('promedio').value);
+
+        miembro.forEach((miembroX, x) => {
+            if (miembroX.monto !== promedio) {
+                if (miembroX.monto < promedio) {
+                    miembroX.monto -= promedio;
+                    matriz[x] = {};
+                    miembro.forEach((miembroY, y) => {
+                        if (miembroY !== miembroX && miembroY.monto > promedio && miembroX.monto < 0) {
+                            const amount = Math.min(miembroY.monto - promedio, -miembroX.monto);
+                            matriz[x][y] = amount;
+                            miembroX.monto += amount;
+                            miembroY.monto -= amount;
+                        }
+                    });
+                }
+            }
+        });
+
+        matriz.forEach((deudas, x) => {
+            if (Object.keys(deudas).length > 0) {
+                const listGroup = document.createElement('div');
+                listGroup.className = 'list-group';
+                const detail = document.createElement('a');
+                detail.name = 'detail';
+                detail.id = x;
+                detail.className = 'list-group-item active';
+                detail.textContent = `${miembro[x].nombre} le debe a:`;
+                listGroup.appendChild(detail);
+
+                Object.entries(deudas).forEach(([y, amount]) => {
+                    const detailItem = document.createElement('a');
+                    detailItem.name = `detail_${x}`;
+                    detailItem.className = 'list-group-item';
+                    detailItem.textContent = `${miembro[y].nombre}: $${Math.round(amount)}`;
+                    listGroup.appendChild(detailItem);
+                });
+
+                document.getElementById('resultado').appendChild(listGroup);
+            }
+        });
+
+        document.getElementById('panel-resultados').style.display = 'block';
+    }
+
+    // Plegar o desplegar los resultados de un compipa
+    document.getElementById('resultado').addEventListener('click', (event) => {
+        if (event.target.name === 'detail') {
+            const id = event.target.id;
+            document.querySelectorAll(`a[name="detail_${id}"]`).forEach(element => {
+                element.classList.toggle('hidden');
+            });
+        }
+    });
+</script>
+</body>
+</html>
