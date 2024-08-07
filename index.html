@@ -16,27 +16,27 @@
 			<!-- Botón de ayuda -->
 			<div id="help">
 				<button id="btnAyuda" type="button" class="btn btn-default" title="Instrucciones">
-					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>Ayuda
+					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>Help
 				</button>
 			</div>
 			<!-- Panel con el texto de la ayuda -->
 			<div id="instructions" class="col-md-6 col-md-offset-3" style="display:none;">
 				<ul class="list-group">
-					<li class="list-group-item disabled">Instrucciones de uso:</li>
-					<li class="list-group-item">1.- En el campo <b>'Nombre'</b> introduce el nombre del compipa.</li>
-					<li class="list-group-item">2.- En el campo <b>'Monto pagado'</b> introduce la cantidad total que pagó.</li>
-					<li class="list-group-item">3.- Si necesitas añadir más compipas, pulsa el botón <b>'Añadir compipa'</b>.</li>
-					<li class="list-group-item">4.- Cuando hayas terminado, pulsa el botón <b>'Calcular'</b>.</li>
-					<li class="list-group-item">5.- Podrás ver los resultados en la parte inferior.</li>
+					<li class="list-group-item disabled">Usage Instructions:</li>
+                    <li class="list-group-item">1. In the <b>'Name'</b> field, enter the name of the member.</li>
+                    <li class="list-group-item">2. In the <b>'Amount Paid'</b> field, enter the total amount they paid.</li>
+                    <li class="list-group-item">3. If you need to add more members, click the <b>'Add Member'</b> button.</li>
+                     <li class="list-group-item">4. When you are done, click the <b>'Calculate'</b> button.</li>
+                    <li class="list-group-item">5. You can see the results at the bottom.</li>
 				</ul>
 			</div>
 			<!-- Etiquetas de Nombre y Monto -->
 			<div class="col-md-5 col-md-offset-3">
 				<div class="col-md-6 col-sm-5 col-xs-7">
-					<label class="control-label" for='miembro_0'>Nombre</label>
+					<label class="control-label" for='miembro_0'>Name</label>
 				</div>
 				<div class="col-md-6">
-					<label class="control-label" for='monto_0'>Monto pagado</label>
+					<label class="control-label" for='monto_0'>Amount Paid</label>
 				</div>
 			</div>
 			<!-- Campos de texto -->
@@ -44,14 +44,14 @@
 				<div id="fields">
 					<div class="form-group form-inline" id="li_0" data-id="0">
 						<div class="input-group">
-							<input class="form-control" list="compipas" id="miembro_0" placeholder="Nombre" /> 
+							<input class="form-control" list="compipas" id="miembro_0" placeholder="Name" /> 
 							<span class="input-group-addon"> $</span>
 							<input class="form-control" type="number" id="monto_0" min="0" max="1000000" value="0"  />
 						</div>
 					</div>
 					<div class="form-group form-inline" id="li_list" data-id="1">
 						<div class="input-group">
-							<input class="form-control" list="compipas" id="miembro_1" placeholder="Nombre"/> 
+							<input class="form-control" list="compipas" id="miembro_1" placeholder="Name"/> 
 							<span class="input-group-addon"> $</span>
 							<input class="form-control" type="number" id="monto_1" min="0" max="1000000" value="0" />
 						</div>
@@ -69,7 +69,7 @@
 					</div>
 					<div class="form-group form-inline">
 						<div class="input-group">
-							<input class="form-control" type="text" value="Promedio" readonly="readonly" /> 
+							<input class="form-control" type="text" value="Average" readonly="readonly" /> 
 							<span class="input-group-addon"> $</span>
 							<input class="form-control" type="number" id="promedio" value="0" readonly="readonly" />
 						</div>
@@ -80,11 +80,11 @@
 			<div class="col-md-6 col-md-offset-3">
 				<div class="form-group">
 					<div id='last'>
-						<input class="btn btn-default" type="button" id="add" value="Añadir Compipa" />
+						<input class="btn btn-default" type="button" id="add" value="Add member" />
 					</div>
 				</div>
 				<div class="form-group">
-					<input class="btn btn-primary" type="button" id="calcular" value="Calcular" />
+					<input class="btn btn-primary" type="button" id="calcular" value="Calculate" />
 				</div>
 			</div>
 		</div>
@@ -93,7 +93,7 @@
 <!-- Panel de resultados -->
 <div class="container" id="panel-resultados" style="display:none;">
 	<div class="panel panel-primary">
-		<div class="panel-heading">Resultados</div>
+		<div class="panel-heading">Results</div>
 		<div class="panel-body">
 			<div class="col-md-6 col-md-offset-3" id="resultado">
 
@@ -136,7 +136,7 @@
         eliminarBtn.type = 'button';
         eliminarBtn.className = 'btn btn-default eliminar';
         eliminarBtn.dataset.id = members;
-        eliminarBtn.value = 'Eliminar';
+        eliminarBtn.value = 'Remove';
         newLi.appendChild(eliminarBtn);
 
         eliminarBtn.addEventListener('click', () => {
@@ -215,7 +215,7 @@
                 detail.name = 'detail';
                 detail.id = x;
                 detail.className = 'list-group-item active';
-                detail.textContent = `${miembro[x].nombre} le debe a:`;
+                detail.textContent = `${miembro[x].nombre} owes:`;
                 listGroup.appendChild(detail);
 
                 Object.entries(deudas).forEach(([y, amount]) => {
