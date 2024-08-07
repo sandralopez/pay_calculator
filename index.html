@@ -42,14 +42,14 @@
 			<!-- Campos de texto -->
 			<div class="col-md-6 col-md-offset-3">
 				<div id="fields">
-					<div class="form-group form-inline" id="li_0">
+					<div class="form-group form-inline" id="li_0" data-id="0">
 						<div class="input-group">
 							<input class="form-control" list="compipas" id="miembro_0" placeholder="Nombre" /> 
 							<span class="input-group-addon"> $</span>
 							<input class="form-control" type="number" id="monto_0" min="0" max="1000000" value="0"  />
 						</div>
 					</div>
-					<div class="form-group form-inline" id="li_1">
+					<div class="form-group form-inline" id="li_list" data-id="1">
 						<div class="input-group">
 							<input class="form-control" list="compipas" id="miembro_1" placeholder="Nombre"/> 
 							<span class="input-group-addon"> $</span>
@@ -121,34 +121,32 @@
         members++;
 
         const newLi = document.getElementById('li_0').cloneNode(true);
-        newLi.id = `li_${members}`;
+        newLi.dataset.id = members;
         document.getElementById('fields').appendChild(newLi);
 
-        const newMiembro = newLi.querySelector('#miembro_0');
+        const newMiembro = newLi.querySelector('[id^="miembro_"]');
         newMiembro.id = `miembro_${members}`;
         newMiembro.value = '';
 
-        const newMonto = newLi.querySelector('#monto_0');
+        const newMonto = newLi.querySelector('[id^="monto_"]');
         newMonto.id = `monto_${members}`;
         newMonto.value = 0;
 
         const eliminarBtn = document.createElement('input');
         eliminarBtn.type = 'button';
         eliminarBtn.className = 'btn btn-default eliminar';
-        eliminarBtn.id = `eliminar_${members}`;
+        eliminarBtn.dataset.id = members;
         eliminarBtn.value = 'Eliminar';
         newLi.appendChild(eliminarBtn);
 
         eliminarBtn.addEventListener('click', () => {
-            eliminar(eliminarBtn.id);
+            eliminar(newLi);
         });
     });
 
     // Cuando hay un cambio en fields, se recalcula el total y el promedio
     document.getElementById('fields').addEventListener('input', (event) => {
-        if (event.target.matches('[id^="monto_"]')) {
-            obtenerPromedio();
-        }
+        obtenerPromedio();
     });
 
     // Al hacer click en el botón 'Calcular'
@@ -162,12 +160,14 @@
         });
         document.getElementById('total').value = total;
         document.getElementById('promedio').value = total / document.querySelectorAll('[id^="li_"]').length;
+        console.log(total);
+        console.log(document.querySelectorAll('[id^="li_"]').length);
         document.getElementById('panel-resultados').style.display = 'none';
     }
 
     // Función eliminar
-    function eliminar(id) {
-        document.getElementById(id).closest('div').remove();
+    function eliminar(element) {
+        element.remove();
         obtenerPromedio();
         calcular();
     }
@@ -180,12 +180,13 @@
 
         document.getElementById('resultado').innerHTML = '';
 
-        for (let i = 0; i < membersCount; i++) {
+        document.querySelectorAll('[id^="li_"]').forEach((li, i) => {
+            const id = li.dataset.id;
             miembro[i] = {
-                nombre: document.getElementById(`miembro_${i}`).value,
-                monto: parseInt(document.getElementById(`monto_${i}`).value) || 0
+                nombre: document.getElementById(`miembro_${id}`).value,
+                monto: parseInt(document.getElementById(`monto_${id}`).value) || 0
             };
-        }
+        });
 
         const promedio = parseInt(document.getElementById('promedio').value);
 
@@ -195,7 +196,7 @@
                     miembroX.monto -= promedio;
                     matriz[x] = {};
                     miembro.forEach((miembroY, y) => {
-                        if (miembroY !== miembroX && miembroY.monto > promedio && miembroX.monto < 0) {
+                        if (miembroY !== miembroX && miembroY.monto > promedio & miembroX.monto < 0) {
                             const amount = Math.min(miembroY.monto - promedio, -miembroX.monto);
                             matriz[x][y] = amount;
                             miembroX.monto += amount;
