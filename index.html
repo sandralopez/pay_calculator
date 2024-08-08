@@ -103,6 +103,99 @@
 </div>
 
 <script>
+    // Función obtener promedio
+    const obtenerPromedio = () => {
+        let total = 0;
+        let validCount = 0;
+
+        document.querySelectorAll('[id^="li_"]').forEach(li => {
+            const id = li.dataset.id;
+            const nombre = document.getElementById(`miembro_${id}`).value.trim();
+            const monto = parseInt(document.getElementById(`monto_${id}`).value) || 0;
+
+            if (nombre !== '') {
+                total += monto;
+                validCount++;
+            }
+        });
+
+        document.getElementById('total').value = total;
+        document.getElementById('promedio').value = validCount ? total / validCount : 0;
+        document.getElementById('panel-resultados').style.display = 'none';
+    }
+
+    // Función eliminar
+    const eliminar = (element) => {
+        element.remove();
+        obtenerPromedio();
+        calcular();
+    }
+
+    // Función calcular
+    const calcular = () => {
+        const miembro = [];
+        const matriz = [];
+        const membersCount = document.querySelectorAll('[id^="li_"]').length;
+
+        document.getElementById('resultado').innerHTML = '';
+
+        document.querySelectorAll('[id^="li_"]').forEach((li, i) => {
+            const id = li.dataset.id;
+            const nombre = document.getElementById(`miembro_${id}`).value.trim();
+
+            if (nombre !== '') {
+                miembro[i] = {
+                    nombre: nombre,
+                    monto: parseInt(document.getElementById(`monto_${id}`).value) || 0
+                };
+            }
+        });
+
+        const promedio = parseInt(document.getElementById('promedio').value);
+
+        miembro.forEach((miembroX, x) => {
+            if (miembroX.monto !== promedio) {
+                if (miembroX.monto < promedio) {
+                    miembroX.monto -= promedio;
+                    matriz[x] = {};
+                    miembro.forEach((miembroY, y) => {
+                        if (miembroY !== miembroX && miembroY.monto > promedio & miembroX.monto < 0) {
+                            const amount = Math.min(miembroY.monto - promedio, -miembroX.monto);
+                            matriz[x][y] = amount;
+                            miembroX.monto += amount;
+                            miembroY.monto -= amount;
+                        }
+                    });
+                }
+            }
+        });
+
+        matriz.forEach((deudas, x) => {
+            if (Object.keys(deudas).length > 0) {
+                const listGroup = document.createElement('div');
+                listGroup.className = 'list-group';
+                const detail = document.createElement('a');
+                detail.name = 'detail';
+                detail.id = x;
+                detail.className = 'list-group-item active';
+                detail.textContent = `${miembro[x].nombre} owes:`;
+                listGroup.appendChild(detail);
+
+                Object.entries(deudas).forEach(([y, amount]) => {
+                    const detailItem = document.createElement('a');
+                    detailItem.name = `detail_${x}`;
+                    detailItem.className = 'list-group-item';
+                    detailItem.textContent = `${miembro[y].nombre}: $${Math.round(amount)}`;
+                    listGroup.appendChild(detailItem);
+                });
+
+                document.getElementById('resultado').appendChild(listGroup);
+            }
+        });
+
+        document.getElementById('panel-resultados').style.display = 'block';
+    }
+
     // Variable global members, va contando el número de elementos creados, aunque se eliminen
     let members = 1;
 
@@ -151,87 +244,6 @@
 
     // Al hacer click en el botón 'Calcular'
     document.getElementById('calcular').addEventListener('click', calcular);
-
-    // Función obtener promedio
-    function obtenerPromedio() {
-        let total = 0;
-        document.querySelectorAll('[id^="monto_"]').forEach(element => {
-            total += parseInt(element.value) || 0;
-        });
-        document.getElementById('total').value = total;
-        document.getElementById('promedio').value = total / document.querySelectorAll('[id^="li_"]').length;
-        console.log(total);
-        console.log(document.querySelectorAll('[id^="li_"]').length);
-        document.getElementById('panel-resultados').style.display = 'none';
-    }
-
-    // Función eliminar
-    function eliminar(element) {
-        element.remove();
-        obtenerPromedio();
-        calcular();
-    }
-
-    // Función calcular
-    function calcular() {
-        const miembro = [];
-        const matriz = [];
-        const membersCount = document.querySelectorAll('[id^="li_"]').length;
-
-        document.getElementById('resultado').innerHTML = '';
-
-        document.querySelectorAll('[id^="li_"]').forEach((li, i) => {
-            const id = li.dataset.id;
-            miembro[i] = {
-                nombre: document.getElementById(`miembro_${id}`).value,
-                monto: parseInt(document.getElementById(`monto_${id}`).value) || 0
-            };
-        });
-
-        const promedio = parseInt(document.getElementById('promedio').value);
-
-        miembro.forEach((miembroX, x) => {
-            if (miembroX.monto !== promedio) {
-                if (miembroX.monto < promedio) {
-                    miembroX.monto -= promedio;
-                    matriz[x] = {};
-                    miembro.forEach((miembroY, y) => {
-                        if (miembroY !== miembroX && miembroY.monto > promedio & miembroX.monto < 0) {
-                            const amount = Math.min(miembroY.monto - promedio, -miembroX.monto);
-                            matriz[x][y] = amount;
-                            miembroX.monto += amount;
-                            miembroY.monto -= amount;
-                        }
-                    });
-                }
-            }
-        });
-
-        matriz.forEach((deudas, x) => {
-            if (Object.keys(deudas).length > 0) {
-                const listGroup = document.createElement('div');
-                listGroup.className = 'list-group';
-                const detail = document.createElement('a');
-                detail.name = 'detail';
-                detail.id = x;
-                detail.className = 'list-group-item active';
-                detail.textContent = `${miembro[x].nombre} owes:`;
-                listGroup.appendChild(detail);
-
-                Object.entries(deudas).forEach(([y, amount]) => {
-                    const detailItem = document.createElement('a');
-                    detailItem.name = `detail_${x}`;
-                    detailItem.className = 'list-group-item';
-                    detailItem.textContent = `${miembro[y].nombre}: $${Math.round(amount)}`;
-                    listGroup.appendChild(detailItem);
-                });
-
-                document.getElementById('resultado').appendChild(listGroup);
-            }
-        });
-
-        document.getElementById('panel-resultados').style.display = 'block';
-    }
 
     // Plegar o desplegar los resultados de un compipa
     document.getElementById('resultado').addEventListener('click', (event) => {
